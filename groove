@@ -1,0 +1,33 @@
+#! /usr/bin/env zsh
+CHROME=$(which chrome-cli)
+if [[ "$CHROME" == "chrome-cli not found" ]]; then
+    echo "no chrome-cli installed, see installation: https://github.com/prasmussen/chrome-cli"
+fi
+
+TAB=$(chrome-cli list tabs |
+    grep -n "Grooveshark" |
+    awk -F ':' '{print $2}' |
+    awk -F "]" '{print $1}' |
+    awk -F "[" '{print $2}')
+
+CMD=""
+
+if [[ "$1" == "next" ]]; then
+    CMD="window.Grooveshark.next()"
+elif [[ "$1" == "prev" ]]; then
+    CMD="window.Grooveshark.previous()"
+elif [[ "$1" == "toggle" ]]; then
+    CMD="window.Grooveshark.togglePlayPause()"
+elif [[ "$1" == "play" ]]; then
+    CMD="window.Grooveshark.play()"
+elif [[ "$1" == "pause" ]]; then
+    CMD="window.Grooveshark.pause()"
+elif [[ "$1" == "fav" ]]; then
+    CMD="window.Grooveshark.favoriteCurrentSong()"
+elif [[ "$1" == "info" ]]; then
+    CMD='window.Grooveshark.getCurrentSongStatus().song.songName + " - " + window.Grooveshark.getCurrentSongStatus().song.artistName'
+fi
+
+if [[ "$1" != "" ]]; then
+    chrome-cli execute $CMD -t ${TAB}
+fi
